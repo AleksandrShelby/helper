@@ -12,14 +12,14 @@ encoding.default = 'CP1251'
 u8 = encoding.UTF8
 
 update_state = false
-local script_vers = 3
-local script_vers_text = "1.10"
+local script_vers = 4
+local script_vers_text = "1.11"
 local update_url = "https://raw.githubusercontent.com/AleksandrShelby/helper/main/update.ini" -- тут тоже свою ссылку
 local update_path = getWorkingDirectory() .. "/update.ini" -- и тут свою ссылку
 
 local script_url = "https://github.com/AleksandrShelby/helper/blob/main/Exam_Helper.luac?raw=true" -- тут свою ссылку
 local script_path = thisScript().path
-local tag ='{0066ff}[Проверка]: '
+local tag ='{0066ff}[Exam Helper]: '
 local main_color = 0x0066ff
 local main_color_text = "{0066ff}"
 local white_color = "{FFFFFF}"
@@ -146,7 +146,8 @@ function main()
 	imgui.Process = false
 	sampAddChatMessage(tag.."{FFFFFF}Приветствую,{0066ff} "..nick.."["..id.."]{FFFFFF}!", main_color)
 	sampAddChatMessage(tag.."{FFFFFF}Для того чтобы запустить скрипт, введите команду {0066ff}/cnn", main_color)
-	sampAddChatMessage(tag.."{FFFFFF}Скрипт написал нубасина Alexander Twix, подкорректировал Ash Lavashyan", main_color)
+	sampAddChatMessage(tag.."{FFFFFF}Скрипт написал нубасина {0066ff}Alexander Twix,{ffffff} подкорректировал {0066ff}Ash Lavashyan.", main_color)
+	sampAddChatMessage(tag.."{FFFFFF}Версия скрипта: {0066ff}" .. script_vers_text, main_color)
 	downloadUrlToFile(update_url, update_path, function(id, status)
         if status == dlstatus.STATUS_ENDDOWNLOADDATA then
             updateIni = inicfg.load(nil, update_path)
