@@ -12,8 +12,8 @@ encoding.default = 'CP1251'
 u8 = encoding.UTF8
 
 update_state = false
-local script_vers = 4
-local script_vers_text = "1.11"
+local script_vers = 5
+local script_vers_text = "1.12"
 local update_url = "https://raw.githubusercontent.com/AleksandrShelby/helper/main/update.ini" -- тут тоже свою ссылку
 local update_path = getWorkingDirectory() .. "/update.ini" -- и тут свою ссылку
 
@@ -796,7 +796,7 @@ function imgui.OnDrawFrame()
 		sampSendChat("Правильный ответ: можно эфиры можно на 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55 минут каждого часа.")
 		end
 		if imgui.Button(u8"Можно ли занимать эфир на час вперёд") then
-		sampSendChat("Можно ли занимать эфир на час вперёд? Допустим сейчас 10:05, можите ли вы занять на 11:05?")
+		sampSendChat("Можно ли занимать эфир на час вперёд? Допустим сейчас 10:05, можете ли вы занять на 11:05?")
 		end
 		imgui.SetCursorPos(imgui.ImVec2(200, 20))
 		imgui.SetCursorPos(imgui.ImVec2(ex_pos.x + 260, ex_pos.y + 52))
@@ -852,7 +852,7 @@ function imgui.OnDrawFrame()
 		sampSendChat("Правильный ответ: минимальное время проведение 1 минута!")
 		end
 		if imgui.Button(u8"Через сколько можно начать эфир") then
-		sampSendChat("Вот допустим сейчас 10:00, и у вас должен начатся эфир, через сколько вы можите его начать?")
+		sampSendChat("Вот допустим сейчас 10:00, и у вас должен начатся эфир, через сколько вы можете его начать?")
 		end
 		imgui.SetCursorPos(imgui.ImVec2(200, 20))
 		imgui.SetCursorPos(imgui.ImVec2(ex_pos.x + 260, ex_pos.y + 220))
@@ -903,8 +903,12 @@ function imgui.OnDrawFrame()
 		if imgui.Button(u8"Ответ##72") then
 		sampSendChat("30 минут.")
 		end
-		if imgui.Button(u8"Сколько ждать после отката эфира?") then
-		sampSendChat("Разрешено ли забивать два эфира с одного радиоцентра одновременно, пока первый эфир не провели?")
+		if imgui.Button(u8"Два эфира с одного радиоцентра") then
+		lua_thread.create(function()
+		sampSendChat("Разрешено ли забивать два эфира с одного радиоцентра")
+		wait(1000)
+		sampSendChat("одновременно, пока первый эфир не провели?")
+		end)
 		end
 		imgui.SetCursorPos(imgui.ImVec2(200, 20))
 		imgui.SetCursorPos(imgui.ImVec2(ex_pos.x + 260, ex_pos.y + 364))
