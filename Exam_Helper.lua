@@ -12,8 +12,8 @@ encoding.default = 'CP1251'
 u8 = encoding.UTF8
 
 update_state = false
-local script_vers = 5
-local script_vers_text = "1.12"
+local script_vers = 6
+local script_vers_text = "1.13"
 local update_url = "https://raw.githubusercontent.com/AleksandrShelby/helper/main/update.ini" -- тут тоже свою ссылку
 local update_path = getWorkingDirectory() .. "/update.ini" -- и тут свою ссылку
 
@@ -136,8 +136,12 @@ function apply_custom_style()
 end
 apply_custom_style()
 function main()
-	if not isSampLoaded() or not isSampfuncsLoaded() then return end
-	while not isSampAvailable() do wait(100) end
+	if not isSampfuncsLoaded() or not isSampLoaded() then return end
+	while not isSampAvailable() do
+		wait(0)
+	end
+	repeat wait(0) until sampIsLocalPlayerSpawned()
+	
 	sampRegisterChatCommand("cnn", cmd_cnn)
 	
 	_, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
