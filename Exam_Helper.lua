@@ -13,8 +13,8 @@ encoding.default = 'CP1251'
 u8 = encoding.UTF8
 
 update_state = false
-local script_vers = 7
-local script_vers_text = "1.14"
+local script_vers = 6
+local script_vers_text = "1.13"
 --local update_url = "https://raw.githubusercontent.com/AleksandrShelby/helper/main/update.ini" -- тут тоже свою ссылку
 --local update_path = getWorkingDirectory() .. "/update.ini" -- и тут свою ссылку
 
@@ -170,8 +170,11 @@ function apply_custom_style()
 end
 apply_custom_style()
 function main()
-	if not isSampLoaded() then return end
-  		while not isSampAvailable() do wait(100) end
+	if not isSampfuncsLoaded() or not isSampLoaded() then return end
+	while not isSampAvailable() do
+		wait(0)
+	end
+	repeat wait(0) until sampIsLocalPlayerSpawned()
 	
 	sampRegisterChatCommand("cnn", cmd_cnn)
 	
@@ -179,7 +182,7 @@ function main()
 	nick = sampGetPlayerNickname(id)
 	
 	imgui.Process = false
-	sampAddChatMessage(tag.."{FFFFFF}Приветствую,{0066ff} "..nick.."{FFFFFF}!", main_color)
+	sampAddChatMessage(tag.."{FFFFFF}Приветствую,{0066ff} "..nick.."["..id.."]{FFFFFF}!", main_color)
 	sampAddChatMessage(tag.."{FFFFFF}Для того чтобы запустить скрипт, введите команду {0066ff}/cnn", main_color)
 	sampAddChatMessage(tag.."{FFFFFF}Скрипт написал нубасина {0066ff}Alexander Twix,{ffffff} подкорректировал {0066ff}Ash Lavashyan.", main_color)
 	sampAddChatMessage(tag.."{FFFFFF}Версия скрипта: {0066ff}" .. script_vers_text, main_color)
@@ -202,7 +205,6 @@ function main()
                 if status == dlstatus.STATUS_ENDDOWNLOADDATA then
                     sampAddChatMessage("Скрипт успешно обновлен!", main_color)
 					sampAddChatMessage("Изменения: Было добавлена специальное уведомление, которая сообщит когда можно закончить проверку!", main_color)
-					sampAddChatMessage("Изменения: Присутствует недоработка. После неудачной сдачи скрипт всё равно отправить уведомление через некоторое время.", main_color)
                     thisScript():reload()
                 end
             end)
@@ -242,7 +244,7 @@ end
 function waitNotification(text, ntime)
 	notification_text = text
 	notification_time = ntime
-	wait(ntime * 600) -- Меняй тут циферку на 60000 --
+	wait(ntime * 60000) -- Меняй тут циферку на 60000 --
 	sec_window_state.v = true
 end
 
@@ -267,8 +269,8 @@ function imgui.OnDrawFrame()
 				sampSendChat("Вы готовы сдать ПРО?")
 				wait(1000)
 				sampSendChat("/time")
-				wait(10000)
 				waitNotification(u8"ПРО", 10)
+				--sec_window_state.v = true
 			end)
 		end
 		imgui.SameLine()
@@ -281,12 +283,11 @@ function imgui.OnDrawFrame()
 		end
 		imgui.SameLine()
 		if imgui.Button(u8"Успешно сдал!##1") then
-				sampSendChat("/todo Поздравляю! Вы сдали Правила редактирования объявлений!*с улыбкой на лице")
+				sampSendChat("Поздравляю! Вы сдали Правила редактирования объявлений!")
 		end
 		imgui.SameLine()
 		if imgui.Button(u8"Не успешно сдал!##1") then
-				sampSendChat("/todo К сожалению вы не сдали ПРО!*с грустью на лице")
-				
+				sampSendChat("К сожалению вы не сдали ПРО!")
 		end
 		imgui.SameLine()
 		if imgui.Button(u8"/time##1") then
@@ -311,7 +312,7 @@ function imgui.OnDrawFrame()
 		end
 		imgui.SetCursorPos(imgui.ImVec2(178,102))
 		if imgui.Button(u8"Ответ##2") then
-				sampSendChat("Правильный ответ: Нельзя, Исключение: Название семей и транспорта Люкс класса")
+				sampSendChat("Правильный ответ: Нельзя, Исключение: Название семей")
 		end
 		if imgui.Button(u8"Объявы от одного") then
 				sampSendChat("В каких случаях можно редактировать объявление от одного и того же человека")
@@ -326,7 +327,7 @@ function imgui.OnDrawFrame()
 		end
 		imgui.SetCursorPos(imgui.ImVec2(178,154))
 		if imgui.Button(u8"Ответ##4") then
-				sampSendChat("Правильный ответ: Отказ. Не рекламируем продажу/покупку данного тюнинга")
+				sampSendChat("Правильный ответ: Продам д/т Снегоуборочный ковш. Цена: 25.000.000$")
 		end
 		if imgui.Button(u8"Магазин одежды у Казика") then
 				sampSendChat("Отредактируйте объявление: Продам магазин одежды у казино")
@@ -356,7 +357,7 @@ function imgui.OnDrawFrame()
 		end
 		imgui.SetCursorPos(imgui.ImVec2(178,258))
 		if imgui.Button(u8"Ответ##8") then
-				sampSendChat("Правильный ответ: Отказ. Не рекламируем данный а/с")
+				sampSendChat("Правильный ответ: Куплю а/с Нимб с гравировкой. Бюджет: 60.000.000$")
 		end
 		if imgui.Button(u8"Куплю отмычки от ТСР") then
 				sampSendChat("Отредактируйте объявление: Куплю срочно отмычки от ТСР за штуку 100к")
@@ -385,7 +386,7 @@ function imgui.OnDrawFrame()
 		end
 		imgui.SetCursorPos(imgui.ImVec2(178,362))
 		if imgui.Button(u8"Ответ##12") then
-				sampSendChat("Правильный ответ: Продам квартиру в новостройке. Цена: договорная")
+				sampSendChat("Правильный ответ: Продам квартиру в новостройке г.Лос-Сантос. Цена: договорная")
 		end
 		--imgui.Separator()
 		if imgui.Button(u8"Куплю видеокарты") then
@@ -403,11 +404,11 @@ function imgui.OnDrawFrame()
 				sampSendChat("Правильный ответ: Продам м/ц марки НРГ-500. Цена: 45млн.$")
 		end
 		if imgui.Button(u8"Набор в семью") then
-				sampSendChat("Отредактируйте объявление: Набор в семью Coffee ждём у маяка")
+				sampSendChat("Отредактируйте объявление: Набор в семью Nazvanie ждём у маяка")
 		end
 		imgui.SetCursorPos(imgui.ImVec2(178,440))
 		if imgui.Button(u8"Ответ##15") then
-				sampSendChat("Правильный ответ: Семья Coffee ищет родственников. Ждём у маяка")
+				sampSendChat("Правильный ответ: Семья Nazvanie ищет родственников. Ждём у маяка")
 		end
 		if imgui.Button(u8"Куплю дом в гетто за 3кк") then
 				sampSendChat("Отредактируйте объявление: Куплю дом в гетто за 3кк")
@@ -461,7 +462,7 @@ function imgui.OnDrawFrame()
 		end
 			imgui.SetCursorPos(imgui.ImVec2(405,102))
 		if imgui.Button(u8"Ответ##21") then
-				sampSendChat("Правильный ответ: Куплю костюм Химик. Бюджет: свободный")
+				sampSendChat("Правильный ответ: Куплю костюм Химика. Бюджет: свободный")
 		end
 		imgui.SetCursorPos(imgui.ImVec2(242,128))
 		if imgui.Button(u8"Продам дом в ФК") then
@@ -469,7 +470,7 @@ function imgui.OnDrawFrame()
 		end
 			imgui.SetCursorPos(imgui.ImVec2(405,128))
 		if imgui.Button(u8"Ответ##22") then
-				sampSendChat("Правильный ответ: Продам дом в д.Форт-Карсон. Цена: договорная")
+				sampSendChat("Правильный ответ: Продам дом в г.Форт-Карсон. Цена: договорная")
 		end
 		imgui.SetCursorPos(imgui.ImVec2(242,154))
 		if imgui.Button(u8"Обмен машинами") then
@@ -501,15 +502,15 @@ function imgui.OnDrawFrame()
 		end
 			imgui.SetCursorPos(imgui.ImVec2(405,232))
 		if imgui.Button(u8"Ответ##26") then
-				sampSendChat("Правильный ответ: Работает Бар в г.Лос-Сантос около Центрального рынка. Ждём всех")
+				sampSendChat("Правильный ответ: Работает Бар в г.Лос-Сантос под номером 165. Ждём всех")
 		end
 		imgui.SetCursorPos(imgui.ImVec2(242,258))
-		if imgui.Button(u8"Продам закусь в лв 20кк") then
-				sampSendChat("Отредактируйте объявление: Продам закусь в ЛВ 20кк")
+		if imgui.Button(u8"Продам закусь в лв 100кк") then
+				sampSendChat("Отредактируйте объявление: Продам закусь в ЛВ 100кк")
 		end
 			imgui.SetCursorPos(imgui.ImVec2(405,258))
 		if imgui.Button(u8"Ответ##27") then
-				sampSendChat("Правильный ответ: Продам б/з Закусочная в г.Лас-Вентурас. Цена: 20.000.000$")
+				sampSendChat("Правильный ответ: Продам б/з Закусочная в г.Лас-Вентурас. Цена: 100.000.000$, либо отказ: уточните город")
 		end
 		imgui.SetCursorPos(imgui.ImVec2(242,284))
 		if imgui.Button(u8"Продам магазин оружия") then
@@ -541,7 +542,7 @@ function imgui.OnDrawFrame()
 		end
 			imgui.SetCursorPos(imgui.ImVec2(405,362))
 		if imgui.Button(u8"Ответ##31") then
-				sampSendChat("Правильный ответ: Продам сим-карту формата АБ-АБ-АВБ. Цена: договорная")
+				sampSendChat("Правильный ответ: Продам сим-карту формата АБАБАВБ. Цена: договорная")
 		end
 			imgui.SetCursorPos(imgui.ImVec2(242,388))
 		if imgui.Button(u8"Ищу друга(дискорд)") then
@@ -549,7 +550,7 @@ function imgui.OnDrawFrame()
 		end
 			imgui.SetCursorPos(imgui.ImVec2(405,388))
 		if imgui.Button(u8"Ответ##32") then
-				sampSendChat("Правильный ответ: Отказ. Не рекламируем поиск людей с майкой дискорд. ")
+				sampSendChat("Правильный ответ: Ищу друга с общением Дискорд. Просьба связатсья")
 		end
 			imgui.SetCursorPos(imgui.ImVec2(242,414))
 		if imgui.Button(u8"Собес СМИ ЛВ") then
@@ -573,7 +574,7 @@ function imgui.OnDrawFrame()
 		end
 			imgui.SetCursorPos(imgui.ImVec2(405,466))
 		if imgui.Button(u8"Ответ##35") then
-				sampSendChat("Правильный ответ: Проходит набор в ФК Ацтек. Ждём на районе")
+				sampSendChat("Правильный ответ: Идет набор в ФК Ацтек. Ждём на районе")
 		end
 		imgui.SetCursorPos(imgui.ImVec2(242,492))
 		if imgui.Button(u8"Продам бронзу по 8к") then
@@ -589,7 +590,7 @@ function imgui.OnDrawFrame()
 				end
 				imgui.SetCursorPos(imgui.ImVec2(405,518))
 		if imgui.Button(u8"Ответ##37") then
-				sampSendChat("Правильный ответ: Продам шашку таксиста. Цена: 25.000.000$")
+				sampSendChat("Правильный ответ: Продам д/т шашку таксиста. Цена: 25.000.000$")
 		end
 		imgui.SetCursorPos(imgui.ImVec2(242,544))
 						if imgui.Button(u8"Доп. Ищу собачку") then
@@ -630,7 +631,6 @@ function imgui.OnDrawFrame()
 				sampSendChat("Вы готовы сдать Устав СМИ?")
 				wait(1000)
 				sampSendChat("/time")
-				wait(300000)
 				waitNotification(u8"Устав", 5)
 			end)
 		end
@@ -644,11 +644,11 @@ function imgui.OnDrawFrame()
 		end
 		imgui.SameLine()
 		if imgui.Button(u8"Сдал!##2") then
-		sampSendChat("/todo Поздравляю! Вы сдали Устав СМИ!*с улыбкой на лице")
+		sampSendChat("Поздравляю! Вы сдали Устав СМИ!")
 		end
 		imgui.SameLine()
 		if imgui.Button(u8"Не сдал!##2") then
-		sampSendChat("/todo К сожалению вы не сдали Устав!*с грустью на лице")
+		sampSendChat("К сожалению вы не сдали Устав!!")
 		end
 		imgui.SameLine()
 		if imgui.Button(u8"/time##2") then
@@ -805,7 +805,7 @@ function imgui.OnDrawFrame()
 		imgui.SetCursorPos(imgui.ImVec2(200, 20))
 		imgui.SetCursorPos(imgui.ImVec2(ex_pos.x + 250, ex_pos.y + 460))
 		if imgui.Button(u8"Ответ##54") then
-		sampSendChat("Правильный ответ: Нельзя. Прогул в форме наказывается увольнением, без формы - выговором")
+		sampSendChat("Правильный ответ: Нелья. Прогул в форме наказывается увольнением, без формы - выговором")
 		end
 		end
 	if imgui.CollapsingHeader(u8'Проверка Правил проведения эфиров') then
@@ -813,7 +813,7 @@ function imgui.OnDrawFrame()
 	if imgui.Button(u8"Готовы##3") then
 			lua_thread.create(function()
 				sampSendChat("Вы готовы сдать ППЭ?")
-				wait(600000)
+				wait(1000)
 				sampSendChat("/time")
 				waitNotification(u8"ППЭ", 10)
 			end)
@@ -828,11 +828,11 @@ function imgui.OnDrawFrame()
 		end
 		imgui.SameLine()
 		if imgui.Button(u8"Сдал!##3") then
-		sampSendChat("/todo Поздравляю! Вы успешно сдали ППЭ!*с улыбкой на лице")
+		sampSendChat("Поздравляю! Вы успешно сдали ППЭ!")
 		end
 		imgui.SameLine()
 		if imgui.Button(u8"Не сдали!##3") then
-		sampSendChat("/todo К сожалению вы не сдали ППЭ!*с грустью на лице")
+		sampSendChat("К сожалению вы не сдали ППЭ!")
 		end
 		imgui.SameLine()
 		if imgui.Button(u8"/time##3") then
@@ -909,7 +909,7 @@ function imgui.OnDrawFrame()
 		imgui.SetCursorPos(imgui.ImVec2(200, 20))
 		imgui.SetCursorPos(imgui.ImVec2(ex_pos.x + 260, ex_pos.y + 220))
 		if imgui.Button(u8"Ответ##67") then
-		sampSendChat("Правильный ответ: для того чтобы начать эфир у вас есть 3 минуты!")
+		sampSendChat("Правильный ответ: для того чтобы начать эфир у вас есть 2-3 минуты!")
 		end
 		if imgui.Button(u8"Приз в развлекательных") then
 		sampSendChat("Какой минимальный и максимальный приз в развлекательном эфире?")
@@ -935,8 +935,8 @@ function imgui.OnDrawFrame()
 		if imgui.Button(u8"Ответ##70") then
 		lua_thread.create(function()
 		sampSendChat("Есть 8 видов эфиров: интерактивный, развлекательный, познавательный,")
-		wait(3000)
-		sampSendChat("интервью, экстренный, рекламный, новостной, информационный")
+		wait(1500)
+		sampSendChat("интервью, экстренный, рекламный, новостной.")
 		end)
 		end
 		if imgui.Button(u8"Сколько должны выехать на место событий") then
@@ -948,7 +948,7 @@ function imgui.OnDrawFrame()
 		sampSendChat("Как минумум два сторудника.")
 		end
 		if imgui.Button(u8"Сколько ждать после отката эфира?") then
-		sampSendChat("Сколько должен ждать сотрудник, который отменил эфир в спец. рации Дискорд, чтобы занять ещё раз волну?")
+		sampSendChat("Сколько должен ждать сотрудник, который отменил эфир?")
 		end
 		imgui.SetCursorPos(imgui.ImVec2(200, 20))
 		imgui.SetCursorPos(imgui.ImVec2(ex_pos.x + 260, ex_pos.y + 340))
@@ -1007,11 +1007,11 @@ function imgui.OnDrawFrame()
 		end
 		imgui.SameLine()
 		if imgui.Button(u8"Сдал##4") then
-		sampSendChat("/todo Поздравляю вы сдали Правила Редактирования Газет!*с улыбкой на лице")
+		sampSendChat("Поздравляю вы сдали Правила Редактирования Газет!")
 		end
 		imgui.SameLine()
 		if imgui.Button(u8"Не сдал##4") then
-		sampSendChat("/todo К сожалению вы не сдали Правила Редактирования Газет! Подучите еще.*с грустью на лице")
+		sampSendChat("К сожалению вы не сдали Правила Редактирования Газет! Подучите еще")
 		end
 		imgui.SameLine()
 		if imgui.Button(u8"/time##4") then
@@ -1032,7 +1032,7 @@ function imgui.OnDrawFrame()
 		imgui.SetCursorPos(imgui.ImVec2(200, 20))
 		imgui.SetCursorPos(imgui.ImVec2(ex_pos.x + 260, ex_pos.y + 52))
 		if imgui.Button(u8"Ответ##1002") then
-				sampSendChat("Правильный ответ: с должности Журналист, если сотрудник сдал ПРГ.")
+				sampSendChat("Правильный ответ: с должности Журналист")
 		end
 		if imgui.Button(u8"Продавать газеты ранг") then
 				sampSendChat("С какой должности разрешено продавать газеты?")
@@ -1043,7 +1043,7 @@ function imgui.OnDrawFrame()
 				sampSendChat("Правильный ответ: с должности практикант")
 		end
 		if imgui.Button(u8"Можно ли размещать киоск на дороге?") then
-				sampSendChat("Разрешено ли размещать киоск с газетами на дороге?")
+				sampSendChat("Разрешено ли размещать киоск с газетами на дорогу??")
 		end
 		imgui.SetCursorPos(imgui.ImVec2(200, 20))
 		imgui.SetCursorPos(imgui.ImVec2(ex_pos.x + 260, ex_pos.y + 100))
@@ -1081,7 +1081,7 @@ function imgui.OnDrawFrame()
 		imgui.SetCursorPos(imgui.ImVec2(200, 20))
 		imgui.SetCursorPos(imgui.ImVec2(ex_pos.x + 260, ex_pos.y + 196))
 		if imgui.Button(u8"Ответ##1008") then
-				sampSendChat("Правильный ответ: Есть 4 вида газет: информационные(новостные), развлекательные, рекламные газеты и жёлтая пресса.")
+				sampSendChat("Правильный ответ: Есть 4 вида газет: информационные, развлекательные, рекламные газеты и жёлтая пресса.")
 		end
 		if imgui.Button(u8"На каком языке название авто в газете?") then
 				sampSendChat("На каком языке название авто в газете?")
